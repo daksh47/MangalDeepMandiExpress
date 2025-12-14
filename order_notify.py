@@ -4,6 +4,7 @@ from firebase_admin import firestore
 import requests
 import os
 import json
+import time
 
 GITHUB_OWNER = 'daksh47'
 GITHUB_REPO = 'MangalDeepMandiExpress'
@@ -39,41 +40,49 @@ def update_last_count(new_value):
     requests.patch(url, headers=headers, json=data)
 
 def send_alert(new_count, diff, safety):
-    def send_alert(new_count, diff, safety):
+    mention = "@everyone" 
+
     if safety == -1:
-        title_text = "🚨 CRITICAL ALERT: ORDER DELETED"
-        color_code = 15548997
-        message_content = "@everyone ⚠️ **URGENT ATTENTION REQUIRED** ⚠️"
-        desc_text = f"**{abs(diff)}** Order(s) have been deleted from the database!"
+        title_text = "🚨 CRITICAL: ORDER DELETED"
+        color_code = 15548997 
+        message_content = f"{mention} ⚠️ **STOP! ORDER DELETED!**" 
+        desc_text = f"**{abs(diff)}** Order(s) have been REMOVED."
+        repeat_count = 10  
+        delay = 2         
+
     else:
-        title_text = "🚀 NEW ORDER RECEIVED"
-        color_code = 5763719  
-        message_content = "@everyone 🔔 New Order Notification"
+        title_text = "💰 CHA-CHING! NEW ORDER"
+        color_code = 5763719   
+        message_content = f"{mention} 🚀 **WAKE UP! MONEY INCOMING!**"
         desc_text = f"**{diff}** New Order(s) just arrived."
+        repeat_count = 5  
+        delay = 2          
 
     payload = {
         "content": message_content,
-        
-        "allowed_mentions": {
-            "parse": ["everyone"] 
-        },
-
+        "allowed_mentions": {"parse": ["everyone"]},
         "embeds": [{
             "title": title_text,
             "description": desc_text,
             "color": color_code,
             "fields": [
-                {
-                    "name": "📦 Total Orders Now", 
-                    "value": f"**{new_count}**", 
-                    "inline": True
-                }
+                {"name": "📦 Total Orders Now", "value": f"**{new_count}**", "inline": True}
             ],
-            "footer": {"text": "⚠️ Immediate Action Requested"}
+            "footer": {"text": "MangalDeep Notification System"}
         }]
     }
     
-    requests.post(webhook_url, json=payload)
+    print(f"Starting alert loop: {repeat_count} pings.")
+    
+    for i in range(repeat_count):
+        try:
+            requests.post(webhook_url, json=payload)
+            if i < repeat_count - 1:
+                time.sleep(delay)
+        except Exception as e:
+            print(f"Error sending alert {i+1}: {e}")
+
+    print("Alert loop finished.")
 
 def check_updates():
     last_count = get_last_count()
