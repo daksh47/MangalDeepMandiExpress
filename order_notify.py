@@ -39,26 +39,40 @@ def update_last_count(new_value):
     requests.patch(url, headers=headers, json=data)
 
 def send_alert(new_count, diff, safety):
+    def send_alert(new_count, diff, safety):
+    if safety == -1:
+        title_text = "🚨 CRITICAL ALERT: ORDER DELETED"
+        color_code = 15548997
+        message_content = "@everyone ⚠️ **URGENT ATTENTION REQUIRED** ⚠️"
+        desc_text = f"**{abs(diff)}** Order(s) have been deleted from the database!"
+    else:
+        title_text = "🚀 NEW ORDER RECEIVED"
+        color_code = 5763719  
+        message_content = "@everyone 🔔 New Order Notification"
+        desc_text = f"**{diff}** New Order(s) just arrived."
+
     payload = {
-        "content": "🔔 **new order has been place**",
+        "content": message_content,
+        
+        "allowed_mentions": {
+            "parse": ["everyone"] 
+        },
+
         "embeds": [{
-            "title": "New Order Placed",
-            "description": f"**{diff}** Order(s) Placed.",
-            "color": 5763719,
-            "fields": [{"name": "Total Orders", "value": str(new_count)}]
+            "title": title_text,
+            "description": desc_text,
+            "color": color_code,
+            "fields": [
+                {
+                    "name": "📦 Total Orders Now", 
+                    "value": f"**{new_count}**", 
+                    "inline": True
+                }
+            ],
+            "footer": {"text": "⚠️ Immediate Action Requested"}
         }]
     }
-    if safety == -1:
-        payload = {
-            "content": "🔔 **Order has been deleted**",
-            "embeds": [{
-                "title": "RED ALERTTTTTT",
-                "description": f"**{abs(diff)}** Order(s) Deleted.",
-                "color": 5763719,
-                "fields": [{"name": "Total Orders", "value": str(new_count)}]
-            }]
-        }
-        
+    
     requests.post(webhook_url, json=payload)
 
 def check_updates():
