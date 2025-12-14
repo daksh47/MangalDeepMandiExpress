@@ -15,7 +15,7 @@ cred = credentials.Certificate(key_dict)
 firebase_admin.initialize_app(cred)
 db = firestore.client()
 
-webhook_url = os.environ.get('ORDER_FIREBASE')
+webhook_url = os.environ.get('ORDER_DISCORD')
 gh_token = os.environ.get('ORDER_STORE')
 
 def get_last_count():
