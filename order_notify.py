@@ -38,35 +38,42 @@ def update_last_count(new_value):
     data = {"name": VAR_NAME, "value": str(new_value)}
     requests.patch(url, headers=headers, json=data)
 
-def send_alert(new_count, diff):
+def send_alert(new_count, diff, safety):
     payload = {
-        "content": "🔔 **New Data Detected**",
+        "content": "🔔 **new order has been place**",
         "embeds": [{
-            "title": "Database Update",
-            "description": f"Found **{diff}** new items.",
+            "title": "New Order Placed",
+            "description": f"**{diff}** Order(s) Placed.",
             "color": 5763719,
-            "fields": [{"name": "Total Count", "value": str(new_count)}]
+            "fields": [{"name": "Total Orders", "value": str(new_count)}]
         }]
     }
+    if safety == -1:
+        payload = {
+            "content": "🔔 **Order has been deleted**",
+            "embeds": [{
+                "title": "RED ALERTTTTTT",
+                "description": f"**{abs(diff)}** Order(s) Deleted.",
+                "color": 5763719,
+                "fields": [{"name": "Total Orders", "value": str(new_count)}]
+            }]
+        }
+        
     requests.post(webhook_url, json=payload)
 
 def check_updates():
-    # A. Get Old Count (From GitHub Variable)
     last_count = get_last_count()
     
     results = db.collection(TARGET_COLLECTION).count().get()
     current_count = results[0][0].value
     
-    if current_count > last_count:
-        diff = current_count - last_count
-        send_alert(current_count, diff)
-        update_last_count(current_count)
+    diff = current_count - last_count
+    if diff > 0:  
+        send_alert(current_count, diff, 0)
+    elif diff < 0:
+        send_alert(current_count, diff, -1)
         
-    elif current_count < last_count:
-        print("Data deleted. Syncing counter silently.")
-        update_last_count(current_count)
-    else:
-        print("No changes.")
+    update_last_count(current_count)
 
 if __name__ == "__main__":
     check_updates()
