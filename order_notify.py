@@ -49,7 +49,6 @@ def send_alert(new_count, diff, safety):
         desc_text = f"**{abs(diff)}** Order(s) have been REMOVED."
         repeat_count = 10  
         delay = 2         
-
     else:
         title_text = "💰 CHA-CHING! NEW ORDER"
         color_code = 5763719   
