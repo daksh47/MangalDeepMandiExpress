@@ -1,0 +1,28 @@
+name: Order Monitor
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'  
+  workflow_dispatch:      
+
+jobs:
+  run-monitor:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install Dependencies
+        run: pip install firebase-admin requests
+
+      - name: Run Monitor Script
+        env:
+          FIREBASE_KEY: ${{ secrets.ORDER_FIREBASE }}
+          DISCORD_WEBHOOK: ${{ secrets.ORDER_DISCORD }}
+          GH_PAT: ${{ secrets.ORDER_STORE }}
+        run: python order_notify.py
