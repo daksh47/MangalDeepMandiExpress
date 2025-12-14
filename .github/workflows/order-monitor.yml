@@ -25,4 +25,6 @@ jobs:
           ORDER_FIREBASE: ${{ secrets.ORDER_FIREBASE }}
           ORDER_DISCORD: ${{ secrets.ORDER_DISCORD }}
           ORDER_STORE: ${{ secrets.ORDER_STORE }}
+          NOTIFY_DISCORD: ${{ secrets.NOTIFY_DISCORD }}
+          NOTIFY_STORE: ${{ secrets.NOTIFY_STORE }}
         run: python order_notify.py
