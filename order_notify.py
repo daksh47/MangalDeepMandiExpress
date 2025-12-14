@@ -26,7 +26,7 @@ def get_last_count():
     }
     resp = requests.get(url, headers=headers)
     if resp.status_code == 200:
-        return int(resp.json().get('value', 0))
+        return int(resp.json().get('value', -1))
     return 0
 
 def update_last_count(new_value):
@@ -63,6 +63,7 @@ def send_alert(new_count, diff, safety):
 
 def check_updates():
     last_count = get_last_count()
+    print(last_count)
     
     results = db.collection(TARGET_COLLECTION).count().get()
     current_count = results[0][0].value
