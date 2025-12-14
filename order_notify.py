@@ -40,28 +40,26 @@ def update_last_count(new_value):
     requests.patch(url, headers=headers, json=data)
 
 def send_alert(new_count, diff, safety):
+    dashboard_link = "https://mdme-backend.web.app/admin" 
     mention = "@everyone" 
 
     if safety == -1:
         title_text = "🚨 CRITICAL: ORDER DELETED"
-        color_code = 15548997 
+        color_code = 15548997  
         message_content = f"{mention} ⚠️ **STOP! ORDER DELETED!**" 
-        desc_text = f"**{abs(diff)}** Order(s) have been REMOVED."
-        repeat_count = 10  
-        delay = 2         
+        desc_text = f"**{abs(diff)}** Order(s) have been REMOVED.\n[👉 Click here to view Dashboard]({dashboard_link})"
     else:
         title_text = "💰 CHA-CHING! NEW ORDER"
-        color_code = 5763719   
-        message_content = f"{mention} 🚀 **WAKE UP! MONEY INCOMING!**"
-        desc_text = f"**{diff}** New Order(s) just arrived."
-        repeat_count = 5  
-        delay = 2          
+        color_code = 5763719 
+        message_content = f"{mention} 🚀 **MONEY INCOMING!**"
+        desc_text = f"**{diff}** New Order(s) just arrived.\n[👉 Click here to view Dashboard]({dashboard_link})"
 
     payload = {
         "content": message_content,
-        "allowed_mentions": {"parse": ["everyone"]},
+        "allowed_mentions": {"parse": ["everyone"]}, 
         "embeds": [{
             "title": title_text,
+            "url": dashboard_link, 
             "description": desc_text,
             "color": color_code,
             "fields": [
@@ -71,17 +69,11 @@ def send_alert(new_count, diff, safety):
         }]
     }
     
-    print(f"Starting alert loop: {repeat_count} pings.")
-    
-    for i in range(repeat_count):
-        try:
-            requests.post(webhook_url, json=payload)
-            if i < repeat_count - 1:
-                time.sleep(delay)
-        except Exception as e:
-            print(f"Error sending alert {i+1}: {e}")
-
-    print("Alert loop finished.")
+    try:
+        requests.post(webhook_url, json=payload)
+        print("Alert sent successfully.")
+    except Exception as e:
+        print(f"Error sending alert: {e}")
 
 def check_updates():
     last_count = get_last_count()
