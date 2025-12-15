@@ -95,7 +95,7 @@ def send_alert(new_count, diff, safety, what):
         
         try:
             requests.post(webhook_url, json=payload)
-            print("Alert sent successfully.")
+            print("Alert sent successfully NewOrder .")
         except Exception as e:
             print(f"Error sending alert: {e}")
     else:
@@ -121,7 +121,7 @@ def send_alert(new_count, diff, safety, what):
         
         try:
             requests.post(webhook_url_1, json=payload)
-            print("Alert sent successfully.")
+            print("Alert sent successfully Oos.")
         except Exception as e:
             print(f"Error sending alert: {e}")
         
