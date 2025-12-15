@@ -66,6 +66,12 @@ def send_alert(new_count, diff, safety, what):
     dashboard_link = "https://mdme-backend.web.app/admin" 
     mention = "@everyone" 
 
+    # Select the correct URL based on 'what'
+    if what == 0:
+        target_url = webhook_url
+    else:
+        target_url = webhook_url_1
+
     if what == 0:
         if safety == -1:
             title_text = "🚨 CRITICAL: ORDER DELETED"
@@ -77,53 +83,47 @@ def send_alert(new_count, diff, safety, what):
             color_code = 5763719 
             message_content = f"{mention} 🚀 **MONEY INCOMING!**"
             desc_text = f"**{diff}** New Order(s) just arrived.\n[👉 Click here to view Dashboard]({dashboard_link})"
-    
-        payload = {
-            "content": message_content,
-            "allowed_mentions": {"parse": ["everyone"]}, 
-            "embeds": [{
-                "title": title_text,
-                "url": dashboard_link, 
-                "description": desc_text,
-                "color": color_code,
-                "fields": [
-                    {"name": "📦 Total Orders Now", "value": f"**{new_count}**", "inline": True}
-                ],
-                "footer": {"text": "MangalDeep Notification System"}
-            }]
-        }
-        
-        try:
-            requests.post(webhook_url, json=payload)
-            print("Alert sent successfully NewOrder .")
-        except Exception as e:
-            print(f"Error sending alert: {e}")
     else:
         title_text = "💰 CHA-CHING! NEW REQUEST"
         color_code = 5763719 
         message_content = f"{mention} 🚀 **OUT-OF-STOCK WANTED!**"
         desc_text = f"**{diff}** New Request(s) just arrived.\n[👉 Click here to view Dashboard]({dashboard_link})"
     
-        payload = {
-            "content": message_content,
-            "allowed_mentions": {"parse": ["everyone"]}, 
-            "embeds": [{
-                "title": title_text,
-                "url": dashboard_link, 
-                "description": desc_text,
-                "color": color_code,
-                "fields": [
-                    {"name": "📦 Total Requests Now", "value": f"**{new_count}**", "inline": True}
-                ],
-                "footer": {"text": "MangalDeep Notification System"}
-            }]
-        }
+    payload = {
+        "content": message_content,
+        "allowed_mentions": {"parse": ["everyone"]}, 
+        "embeds": [{
+            "title": title_text,
+            "url": dashboard_link, 
+            "description": desc_text,
+            "color": color_code,
+            "fields": [
+                {"name": "📦 Total Count Now", "value": f"**{new_count}**", "inline": True}
+            ],
+            "footer": {"text": "MangalDeep Notification System"}
+        }]
+    }
+    
+    print(f"Attempting to send alert to: {target_url}") # Debugging line
+    
+    try:
+        resp = requests.post(target_url, json=payload)
         
-        try:
-            requests.post(webhook_url_1, json=payload)
-            print("Alert sent successfully Oos.")
-        except Exception as e:
-            print(f"Error sending alert: {e}")
+        # --- CRITICAL FIX START ---
+        # This checks if the status code is 2xx. If it is 4xx or 5xx, it raises an error.
+        resp.raise_for_status() 
+        # --- CRITICAL FIX END ---
+
+        print(f"Alert sent successfully {'NewOrder' if what == 0 else 'Oos'}.")
+        
+    except requests.exceptions.HTTPError as err:
+        # This will print the ACTUAL error message from Discord (e.g., "Invalid Webhook Token")
+        print(f"❌ HTTP Error: {err}")
+        print(f"❌ Discord Response Body: {resp.text}")
+        raise # Re-raise the error so the script stops and DOES NOT update the variable
+    except Exception as e:
+        print(f"❌ General Error: {e}")
+        raise
         
 
 def check_updates(wh):
