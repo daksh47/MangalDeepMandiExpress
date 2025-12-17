@@ -39,7 +39,7 @@ def get_last_count(what):
         
     resp = requests.get(url, headers=headers)
     if resp.status_code == 200:
-        return int(resp.json().get('value', 0))
+        return float(resp.json().get('value', 0))
     return 0
     
 
